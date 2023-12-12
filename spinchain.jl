@@ -169,8 +169,8 @@ function Hamiltonian(base, nu, k, n)
   return Ham
 end
 
-Nup = 2
-Ndown = 2
+Nup = 4
+Ndown = 4
 Ntot = Ndown + Nup
 
 base, nu, k = genNconsv(Nup,Ndown)
