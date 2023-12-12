@@ -107,7 +107,7 @@ $
 then we can express the Hamiltonian as
 
 $
-bra(r_q)hat(H)ket(r_k) = -J/2 sum_(j=1)^(N)[1/4(bra(r_q)hat(P)_k ket(r))/sqrt(mel(r,hat(P)_k,r)) + 1/4 (bra(r_q)hat(P)_k delta_(macron(sigma)_(j+1),arrow.b) delta_(macron(sigma)_j,arrow.t) hat(c)^dagger_(N, sigma) dots.h.c hat(c)^dagger_(j,macron(sigma)) hat(c)^dagger_(j+1,macron(sigma)) dots.h.c hat(c)^dagger_(1, sigma) ket(0))/sqrt(mel(r,hat(P)_k,r)) \
+bra(r_q)hat(H)ket(r_k) = -J/2 sum_(j=1)^(N)[1/2(bra(r_q)hat(P)_k ket(r))/sqrt(mel(r,hat(P)_k,r)) + 1/4 (bra(r_q)hat(P)_k delta_(macron(sigma)_(j+1),arrow.b) delta_(macron(sigma)_j,arrow.t) hat(c)^dagger_(N, sigma) dots.h.c hat(c)^dagger_(j,macron(sigma)) hat(c)^dagger_(j+1,macron(sigma)) dots.h.c hat(c)^dagger_(1, sigma) ket(0))/sqrt(mel(r,hat(P)_k,r)) \
 #h(10cm) + 1/4 (bra(r_q)hat(P)_k delta_(macron(sigma)_(j+1),arrow.t) delta_(macron(sigma)_j,arrow.b) hat(c)^dagger_(N, sigma) dots.h.c hat(c)^dagger_(j,macron(sigma)) hat(c)^dagger_(j+1,macron(sigma)) dots.h.c hat(c)^dagger_(1, sigma) ket(0))/sqrt(mel(r,hat(P)_k,r))]
 $
 
@@ -182,4 +182,13 @@ $
 mel(r_q,hat(H),r_k) = lambda_0 e^(i 2 pi k/L d) sqrt(nu_0)/sqrt(nu_f)
 $
 
+and since we have a matrix for each k we can represent this as
 
+$ H^(k=0) = mat(
+  H_(11), H_(12), ..., H_(1 b);
+  H_(21), H_(22), ..., H_(2 b);
+  dots.v, dots.v, dots.down, dots.v;
+  H_(b 1), H_(b 2), ..., H_(bb);
+) $
+
+where $b$ is the total number of representative states we have.

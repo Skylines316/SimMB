@@ -92,7 +92,7 @@ function decimal_to_binary(number,n)
   return binary_array
 end
 
-function dotProduct(interm, base,n)
+function dotProduct(interm, base, n)
   intermBin = decimal_to_binary(interm,n)
   intermCyc = cyclic_permutations(intermBin)
   nu = length(Set(intermCyc))
@@ -109,13 +109,75 @@ function dotProduct(interm, base,n)
       end
     end
     r+=1
-  end 
-  return basjav, distance 
+  end
+  return basjav, distance
 end
 
-base, nu, k = genNconsv(2,2)
+function Ham_pm(array, base, nu, k, n)
+  Ham_pm_k = 0
+  for i in 1:length(array)
+    Ham_pm_k = [zeros(Complex{Float64}, n) for i in 1:length(base)]
+    if array[i] == 0 && array[i+1] == 1
+      array[i] = 1
+      array[i+1] = 0
+      base_f, d = dotProduct(array, base, n)
+      for j in k
+        Ham_pm_k[base_f][j+1] = 1/4 * exp(im*2*pi*j*d/n) * sqrt(nu[i]) / sqrt(nu[base_f])
+      end  
+    else
+      Ham_pm_k = [zeros(Int, n) for i in 1:length(base)]
+    end
+  end
+  return Ham_pm_k
+end
+
+function Ham_mp(array, base, nu, k, n)
+  Ham_pm_k = 0
+  for i in 1:length(array)
+    Ham_pm_k = [zeros(Complex{Float64}, n) for i in 1:length(base)]
+    if array[i] == 1 && array[i+1] == 0
+      array[i] = 0
+      array[i+1] = 1
+      base_f, d = dotProduct(array, base, n)
+      for j in k
+        Ham_pm_k[base_f][j+1] = 1/4 * exp(im*2*pi*j*d/n) * sqrt(nu[i]) / sqrt(nu[base_f])
+      end  
+    else
+      Ham_pm_k = [zeros(Int, n) for i in 1:length(base)]
+    end
+  end
+  return Ham_pm_k
+end
+
+function Ham_zz(array, base, nu, k, n)
+  Ham_pm_k = 0
+  for i in 1:length(array)
+    Ham_pm_k = [zeros(Complex{Float64}, n) for i in 1:length(base)]
+    base_f, d = dotProduct(array, base, n)
+    for j in k
+      Ham_pm_k[base_f][j+1] = 1/2 * exp(im*2*pi*j*d/n) * sqrt(nu[i]) / sqrt(nu[base_f])
+    end  
+  end
+  return Ham_pm_k
+end
+
+function Hamiltonian(base, nu, k, n)
+  Ham = zeros(Complex{Float64}, length(base), length(base), n)
+  for i in 1:length(base)
+    Ham[i,:,:] = hcat(Ham_pm(base[i], base, nu, k[i], n) + Ham_mp(base[i], base, nu, k[i], n) + Ham_zz(base[i], base, nu, k[i], n)...)' 
+  end
+  return Ham
+end
+
+Nup = 2
+Ndown = 2
+Ntot = Ndown + Nup
+
+base, nu, k = genNconsv(Nup,Ndown)
 # print(decimal_to_binary(27,6))
-q,r = dotProduct(3, base, 4)
-print(q,r)
-print(base, nu, k)
+# q,r = dotProduct(3, base, Ntot)
+Ham = Hamiltonian(base, nu, k, Ntot)
+display(Ham)
+# print(q,r)
+# print(base, nu, k)
 # print("Hola Mundo")
