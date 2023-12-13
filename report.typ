@@ -79,7 +79,7 @@ $
 Since we know that
 
 $
-[hat(S)^z_l ,hat(c)^dagger_(m,sigma)] = 1/2 delta_(l m) hat(c)^dagger_(m,sigma) \
+[hat(S)^z_l ,hat(c)^dagger_(m,sigma)] = (plus.minus)1/2 delta_(l m) hat(c)^dagger_(m,sigma) #h(1cm) +(-) : arrow.t (arrow.b)\
 [hat(S)^+_l ,hat(c)^dagger_(m,sigma)] = 1/2 delta_(l m) hat(c)^dagger_(m,macron(sigma)) delta_(macron(sigma),arrow.t) \
 [hat(S)^-_l ,hat(c)^dagger_(m,sigma)] = 1/2 delta_(l m) hat(c)^dagger_(m,macron(sigma)) delta_(macron(sigma),arrow.b) 
 $

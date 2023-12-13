@@ -1,4 +1,10 @@
 using Combinatorics
+using LinearAlgebra
+using Plots
+using Statistics
+# using Distributed
+# using Base.Threads
+
 function generate_combinations(N, M)
   array = zeros(Int, M)
 
@@ -92,8 +98,8 @@ function decimal_to_binary(number,n)
   return binary_array
 end
 
-function dotProduct(interm, base, n)
-  intermBin = decimal_to_binary(interm,n)
+function dotProduct(interm, base)
+  intermBin = interm
   intermCyc = cyclic_permutations(intermBin)
   nu = length(Set(intermCyc))
   intermCyc = intermCyc[1:nu]
@@ -113,50 +119,33 @@ function dotProduct(interm, base, n)
   return basjav, distance
 end
 
-function Ham_pm(array, base, nu, k, n)
-  Ham_pm_k = 0
-  for i in 1:length(array)
-    Ham_pm_k = [zeros(Complex{Float64}, n) for i in 1:length(base)]
-    if array[i] == 0 && array[i+1] == 1
-      array[i] = 1
-      array[i+1] = 0
-      base_f, d = dotProduct(array, base, n)
-      for j in k
-        Ham_pm_k[base_f][j+1] = 1/4 * exp(im*2*pi*j*d/n) * sqrt(nu[i]) / sqrt(nu[base_f])
-      end  
-    else
-      Ham_pm_k = [zeros(Int, n) for i in 1:length(base)]
-    end
-  end
-  return Ham_pm_k
-end
 
-function Ham_mp(array, base, nu, k, n)
-  Ham_pm_k = 0
-  for i in 1:length(array)
-    Ham_pm_k = [zeros(Complex{Float64}, n) for i in 1:length(base)]
-    if array[i] == 1 && array[i+1] == 0
-      array[i] = 0
-      array[i+1] = 1
-      base_f, d = dotProduct(array, base, n)
-      for j in k
-        Ham_pm_k[base_f][j+1] = 1/4 * exp(im*2*pi*j*d/n) * sqrt(nu[i]) / sqrt(nu[base_f])
-      end  
-    else
-      Ham_pm_k = [zeros(Int, n) for i in 1:length(base)]
-    end
-  end
-  return Ham_pm_k
-end
-
-function Ham_zz(array, base, nu, k, n)
-  Ham_pm_k = 0
-  for i in 1:length(array)
-    Ham_pm_k = [zeros(Complex{Float64}, n) for i in 1:length(base)]
-    base_f, d = dotProduct(array, base, n)
+function Hamil(base_i, base, nu, k, n)
+  initial = decimal_to_binary(base[base_i],n)
+  Ham_pm_k = zeros(Complex{Float64}, length(base), n)
+  for i in 1:length(initial)
+    base_f, d = dotProduct(initial, base)
     for j in k
-      Ham_pm_k[base_f][j+1] = 1/2 * exp(im*2*pi*j*d/n) * sqrt(nu[i]) / sqrt(nu[base_f])
-    end  
+      Ham_pm_k[base_f, j+1] += (-1)^(initial[i]+1)*(-1)^(initial[mod1(i+1,n)]+1)*1/2 * exp(im*2*pi*j*d/n) * sqrt(nu[base_i]) / sqrt(nu[base_f])
+    end
+    interm = copy(initial)
+    if initial[i] == 1 && initial[mod1((i+1),n)] == 0
+      interm[i] = 0
+      interm[mod1((i+1),n)] = 1
+      base_f, d = dotProduct(interm, base)
+      for j in k
+        Ham_pm_k[base_f, j+1] += 1/4 * exp(im*2*pi*j*d/n) * sqrt(nu[base_i]) / sqrt(nu[base_f])
+      end  
+    elseif initial[i] == 0 && initial[mod1((i+1),n)] == 1
+      interm[i] = 1
+      interm[mod1((i+1),n)] = 0
+      base_f, d = dotProduct(interm, base)
+      for j in k
+        Ham_pm_k[base_f, j+1] += 1/4 * exp(im*2*pi*j*d/n) * sqrt(nu[base_i]) / sqrt(nu[base_f])
+        # print("llego", base_f)
+      end  
+    end
+
   end
   return Ham_pm_k
 end
@@ -164,20 +153,41 @@ end
 function Hamiltonian(base, nu, k, n)
   Ham = zeros(Complex{Float64}, length(base), length(base), n)
   for i in 1:length(base)
-    Ham[i,:,:] = hcat(Ham_pm(base[i], base, nu, k[i], n) + Ham_mp(base[i], base, nu, k[i], n) + Ham_zz(base[i], base, nu, k[i], n)...)' 
+    Ham[i,:,:] = Hamil(i, base, nu, k[i], n)
   end
   return Ham
 end
 
-Nup = 4
-Ndown = 4
+Nup = 8
+Ndown = 6   
 Ntot = Ndown + Nup
 
 base, nu, k = genNconsv(Nup,Ndown)
 # print(decimal_to_binary(27,6))
 # q,r = dotProduct(3, base, Ntot)
+# print(hcat(k...)[1,:])
+
 Ham = Hamiltonian(base, nu, k, Ntot)
-display(Ham)
+
+# display(Ham[:,:,1])
+# # print(base)
+# # display(Ham[:,:,1])
+if sum(imag(eigvals(Ham[:,:,1]))) == 0.0
+  En = sort(-real(eigvals(Ham[:,:,1])))
+  spacings = [En[i+1]-En[i] for i in 1:length(En)-1]
+  # spacings_normalized = spacings/mean(spacings)
+  # # print(En)
+  # # println(spacings_normalized)
+  plot(sort(spacings), 1:length(spacings)) 
+  r = [min(spacings[i+1],spacings[i])/max(spacings[i+1],spacings[i]) for i in 1:length(spacings)-1]
+  # # print(r)
+  # histogram(r,normalize=:true, bins = 20)
+  print("good")
+else 
+  print("error")
+end
+png("spac")
+
 # print(q,r)
 # print(base, nu, k)
 # print("Hola Mundo")
