@@ -134,18 +134,18 @@ function Hamil(base_i, base, nu, k, n)
       interm[mod1((i+1),n)] = 1
       base_f, d = dotProduct(interm, base)
       for j in k
-        Ham_pm_k[base_f, j+1] += 1/4 * exp(im*2*pi*j*d/n) * sqrt(nu[base_i]) / sqrt(nu[base_f])
-      end  
-    elseif initial[i] == 0 && initial[mod1((i+1),n)] == 1
+        Ham_pm_k[base_f, j+1] +=  exp(im*2*pi*j*d/n) * sqrt(nu[base_i]) / sqrt(nu[base_f])
+      end
+    end  
+    if initial[i] == 0 && initial[mod1((i+1),n)] == 1
       interm[i] = 1
       interm[mod1((i+1),n)] = 0
       base_f, d = dotProduct(interm, base)
       for j in k
-        Ham_pm_k[base_f, j+1] += 1/4 * exp(im*2*pi*j*d/n) * sqrt(nu[base_i]) / sqrt(nu[base_f])
+        Ham_pm_k[base_f, j+1] += exp(im*2*pi*j*d/n) * sqrt(nu[base_i]) / sqrt(nu[base_f])
         # print("llego", base_f)
-      end  
+      end
     end
-
   end
   return Ham_pm_k
 end
@@ -168,6 +168,8 @@ base, nu, k = genNconsv(Nup,Ndown)
 # print(hcat(k...)[1,:])
 
 Ham = Hamiltonian(base, nu, k, Ntot)
+# print(base)
+# display(real(Ham[:,:,1]))
 
 # display(Ham[:,:,1])
 # # print(base)
@@ -176,17 +178,18 @@ if sum(imag(eigvals(Ham[:,:,1]))) == 0.0
   En = sort(-real(eigvals(Ham[:,:,1])))
   spacings = [En[i+1]-En[i] for i in 1:length(En)-1]
   # spacings_normalized = spacings/mean(spacings)
-  # # print(En)
+  # print(En)
+  print(sum(En))
   # # println(spacings_normalized)
-  plot(sort(spacings), 1:length(spacings)) 
+  # plot(En, 1:length(En)) 
   r = [min(spacings[i+1],spacings[i])/max(spacings[i+1],spacings[i]) for i in 1:length(spacings)-1]
   # # print(r)
-  # histogram(r,normalize=:true, bins = 20)
+  histogram(spacings,normalize=:true)
   print("good")
 else 
   print("error")
 end
-png("spac")
+png("spacings")
 
 # print(q,r)
 # print(base, nu, k)
