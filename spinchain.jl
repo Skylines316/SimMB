@@ -3,7 +3,7 @@ using LinearAlgebra
 using Plots
 using Statistics
 # using Distributed
-# using Base.Threads
+using Base.Threads
 
 function generate_combinations(N, M)
   array = zeros(Int, M)
@@ -152,20 +152,27 @@ end
 
 function Hamiltonian(base, nu, k, n)
   Ham = zeros(Complex{Float64}, length(base), length(base), n)
-  for i in 1:length(base)
+  file_path = "./Hamiltonians/H_u10_d8/k_0.txt"
+  file = open(file_path, "w")
+  @threads for i in 1:length(base)
     Ham[i,:,:] = Hamil(i, base, nu, k[i], n)
   end
+  for i in 1:length(base)
+    println(file, join(real(Ham[i,:,1]), ","))
+  end
+  close(file)
   return Ham
 end
 
-Nup = 8
-Ndown = 6   
+Nup = 10
+Ndown = 8   
 Ntot = Ndown + Nup
 
 base, nu, k = genNconsv(Nup,Ndown)
 # print(decimal_to_binary(27,6))
 # q,r = dotProduct(3, base, Ntot)
 # print(hcat(k...)[1,:])
+
 
 Ham = Hamiltonian(base, nu, k, Ntot)
 # print(base)
@@ -179,17 +186,22 @@ if sum(imag(eigvals(Ham[:,:,1]))) == 0.0
   spacings = [En[i+1]-En[i] for i in 1:length(En)-1]
   # spacings_normalized = spacings/mean(spacings)
   # print(En)
-  print(sum(En))
+  # print(length(En))
+  # print(En)
   # # println(spacings_normalized)
   # plot(En, 1:length(En)) 
   r = [min(spacings[i+1],spacings[i])/max(spacings[i+1],spacings[i]) for i in 1:length(spacings)-1]
   # # print(r)
+  histogram(En,normalize=:true)
+  png("energy10_8")
   histogram(spacings,normalize=:true)
+  png("spacings10_8")
+  histogram(r,normalize=:true)
+  png("ratio10_8")
   print("good")
 else 
   print("error")
 end
-png("spacings")
 
 # print(q,r)
 # print(base, nu, k)
